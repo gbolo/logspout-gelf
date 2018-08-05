@@ -12,10 +12,20 @@ import (
 	"github.com/gliderlabs/logspout/router"
 )
 
-var hostname string
+var hostname, environment string
 
 func init() {
 	hostname, _ = os.Hostname()
+	environment = "unset"
+
+	if x := os.Getenv("ENVIRONMENT"); x != "" {
+		environment = x
+	}
+
+	if x := os.Getenv("DOCKER_HOSTNAME"); x != "" {
+		hostname = x
+	}
+
 	router.AdapterFactories.Register(NewGelfAdapter, "gelf")
 }
 
@@ -91,6 +101,7 @@ func (m GelfMessage) getExtraFields() (json.RawMessage, error) {
 		"_image_name":     m.Container.Config.Image,
 		"_command":        strings.Join(m.Container.Config.Cmd[:], " "),
 		"_created":        m.Container.Created,
+		"_environment":    environment,
 	}
 	for name, label := range m.Container.Config.Labels {
 		if len(name) > 5 && strings.ToLower(name[0:5]) == "gelf_" {

@@ -1,11 +1,17 @@
 # Graylog GELF Module for Logspout
 This module allows Logspout to send Docker logs in the GELF format to Graylog via UDP.
 
+## Additions
+To aid in adding log labels to containers that are not directly managed by operator
+
+- Added ability to override host with enviornment variable `DOCKER_HOSTNAME`
+- Added additional label `_environment` with value set by enviornment variabl `ENVIRONMENT`
+
 ## Build
 To build, you'll need to fork [Logspout](https://github.com/gliderlabs/logspout), add the following code to `modules.go` 
 
 ```
-_ "github.com/micahhausler/logspout-gelf"
+_ "github.com/gbolo/logspout-gelf"
 ```
 and run `docker build -t $(whoami)/logspout:gelf`
 
@@ -15,7 +21,7 @@ and run `docker build -t $(whoami)/logspout:gelf`
 docker run \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -p 8000:80 \
-    micahhausler/logspout:gelf \
+    gbolo/logspout:gelf \
     gelf://<graylog_host>:12201
 
 ```
@@ -32,6 +38,7 @@ The following docker container attributes are mapped to the corresponding GELF e
         "_command":        <container-cmd>,
         "_created":        <container-created-date>,
         "_swarm_node":     <host-if-running-on-swarm>
+        "_environment":    <ENVIRONMENT>,
 }
 ```
 
